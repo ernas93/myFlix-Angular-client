@@ -6,16 +6,16 @@ import { FetchApiDataService } from '../fetch-api-data.service'
   templateUrl: './movie-card.component.html',
   styleUrls: ['./movie-card.component.scss']
 })
-export class MovieCardComponent {
+export class MovieCardComponent implements OnInit {
   movies: any[] = [];
   constructor(public fetchApiData: FetchApiDataService) { }
 
-ngOnInit(): void {
-  this.getMovies();
-}
+  ngOnInit(): void {
+    this.getMovies();
+  }
 
-getMovies(): void {
-  this.fetchApiData.getAllMovies().subscribe((resp: any) => {
+  getMovies(): void {
+    this.fetchApiData.getAllMovies().subscribe((resp: any) => {
       this.movies = resp;
       console.log(this.movies);
       return this.movies;
