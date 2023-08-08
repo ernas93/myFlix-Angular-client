@@ -62,16 +62,15 @@ export class MovieCardComponent implements OnInit {
 
   removeFavorite(id: string): void {
     this.fetchApiData.deleteFavoriteMovie(id).subscribe(() => {
-      this.snackBar.open('added to favorites', 'OK', {
+      this.snackBar.open('removed from favorites', 'OK', {
         duration: 2000
       })
     });
   }
 
   addFavorite(id: string): void {
-    console.log(id)
     this.fetchApiData.addFavoriteMovie(id).subscribe(() => {
-      this.snackBar.open('removed to favorites', 'OK', {
+      this.snackBar.open('added to favorites', 'OK', {
         duration: 2000
       })
     });

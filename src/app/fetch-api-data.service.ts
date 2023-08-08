@@ -113,21 +113,6 @@ export class FetchApiDataService {
     );
   }
 
-  // Making the api call for the add a movie to favourite Movies endpoint
-  addFavoriteMovie(movieId: string): Observable<any> {
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    console.log('uop', user.Username, movieId)
-    return this.http.post(apiUrl + `users/${user.Username}/${movieId}`, {}, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      })
-    }).pipe(
-      map(this.extractResponseData),
-      catchError(this.handleError)
-    );
-  }
-
   // Making the api call for the edit user endpoint
   editUser(updatedUser: any): Observable<any> {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -155,12 +140,38 @@ export class FetchApiDataService {
     );
   }
 
+  
+  // Making the api call for the add a movie to favourite Movies endpoint
+  addFavoriteMovie(movieId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    user.FavoriteMovies.push(movieId);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    return this.http.put(apiUrl + `users/${user.Username}/${movieId}`, {}, {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + token,
+      })
+    }).pipe(
+      map(this.extractResponseData),
+      catchError(this.handleError),
+    );
+  }
+
   // Making the api call for the elete a movie from the favorite movies endpoint
   deleteFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    return this.http.delete(apiUrl + 'users/' + user.Username + '/movies/' + movieId, {
+    const index = user.FavoriteMovies.indexOf(movieId);
+    if (index >= 0) {
+      user.FavoriteMovies.splice(index, 1);
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+
+    return this.http.delete(apiUrl + `users/${user.Username}/${movieId}`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
       })
