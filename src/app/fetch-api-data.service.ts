@@ -114,23 +114,11 @@ export class FetchApiDataService {
   }
 
   // Making the api call for the add a movie to favourite Movies endpoint
-  addFavoriteMovie(movieId: string, username: string): Observable<any> {
+  addFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
-
-    return this.http.post(apiUrl + `users/${username}/${movieId}`, {}, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      })
-    }).pipe(
-      map(this.extractResponseData),
-      catchError(this.handleError)
-    );
-  }
-
-  isFavoriteMovie(movieId: string, username: string): Observable<any> {
-    const token = localStorage.getItem('token');
-
-    return this.http.delete(apiUrl + `users/${username}/${movieId}`, {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    console.log('uop', user.Username, movieId)
+    return this.http.post(apiUrl + `users/${user.Username}/${movieId}`, {}, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
       })
@@ -168,10 +156,11 @@ export class FetchApiDataService {
   }
 
   // Making the api call for the elete a movie from the favorite movies endpoint
-  deleteFavoriteMovie(movieId: string, username: string): Observable<any> {
+  deleteFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    return this.http.delete(apiUrl + 'users/' + username + '/movies/' + movieId, {
+    return this.http.delete(apiUrl + 'users/' + user.Username + '/movies/' + movieId, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
       })
@@ -179,6 +168,16 @@ export class FetchApiDataService {
       map(this.extractResponseData),
       catchError(this.handleError)
     );
+  }
+
+  
+  isFavoriteMovie(movieId: string): boolean {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user) {
+      return user.FavoriteMovies.includes(movieId);
+    }
+
+    return false;
   }
 
   // Non-typed response extraction
