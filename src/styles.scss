@@ -31,17 +31,25 @@ $myFlix-Angular-client-theme: mat.define-light-theme((color: (primary: $myFlix-A
 
 /* You can add global styles to this file, and also import other style files */
 
+:root {
+  --mat-card-title-text-size: 20px;
+  --primary-bg-color: #0d1218;
+  --primar-text-color: #e6e6e6;
+}
+
 html,
 body {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #0d1218;
+  background-color: var(--primary-bg-color);
+  color: var(--primar-text-color);
 }
 
-:root {
-  --mat-card-title-text-size: 20px;
+a, a:visited {
+  text-decoration: none;
+  color:inherit;
 }
