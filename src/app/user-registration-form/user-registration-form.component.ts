@@ -30,6 +30,7 @@ export class UserRegistrationFormComponent implements OnInit {
       this.snackBar.open('user registered successfully!', 'OK', {
         duration: 2000
       });
+
       localStorage.setItem('user', JSON.stringify(result.user));
       localStorage.setItem('token', result.token);
     }, (response) => {
