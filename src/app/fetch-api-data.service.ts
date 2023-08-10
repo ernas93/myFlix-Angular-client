@@ -10,15 +10,13 @@ const apiUrl = 'https://movie-api-es93.herokuapp.com/';
 @Injectable({
   providedIn: 'root'
 })
-export class UserRegistrationService {
+export class FetchApiDataService {
   // Inject the HttpClient module to the constructor params
   // This will provide HttpClient to the entire class, making it available via this.http
   constructor(private http: HttpClient) { }
 
   // Making the api call for the user registration endpoint
   public userRegistration(userDetails: any): Observable<any> {
-    console.log(userDetails);
-
     return this.http.post(apiUrl + 'users', userDetails).pipe(
       catchError(this.handleError)
     );
@@ -26,8 +24,6 @@ export class UserRegistrationService {
 
   // Making the api call for the user login endpoint
   public userLogin(userDetails: any): Observable<any> {
-    console.log(userDetails);
-    
     return this.http.post(apiUrl + 'login?' + new URLSearchParams(userDetails), {}).pipe(
       catchError(this.handleError)
     );
@@ -117,33 +113,6 @@ export class UserRegistrationService {
     );
   }
 
-  // Making the api call for the add a movie to favourite Movies endpoint
-  addFavoriteMovie(movieId: string, username: string): Observable<any> {
-    const token = localStorage.getItem('token');
-
-    return this.http.post(apiUrl + `users/${username}/${movieId}`, {}, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      })
-    }).pipe(
-      map(this.extractResponseData),
-      catchError(this.handleError)
-    );
-  }
-
-  isFavoriteMovie(movieId: string, username: string): Observable<any> {
-    const token = localStorage.getItem('token');
-
-    return this.http.delete(apiUrl + `users/${username}/${movieId}`, {
-      headers: new HttpHeaders({
-        Authorization: 'Bearer ' + token,
-      })
-    }).pipe(
-      map(this.extractResponseData),
-      catchError(this.handleError)
-    );
-  }
-
   // Making the api call for the edit user endpoint
   editUser(updatedUser: any): Observable<any> {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -171,11 +140,38 @@ export class UserRegistrationService {
     );
   }
 
-  // Making the api call for the elete a movie from the favorite movies endpoint
-  deleteFavoriteMovie(movieId: string, username: string): Observable<any> {
+  
+  // Making the api call for the add a movie to favourite Movies endpoint
+  addFavoriteMovie(movieId: string): Observable<any> {
     const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    return this.http.delete(apiUrl + 'users/' + username + '/movies/' + movieId, {
+    user.FavoriteMovies.push(movieId);
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    return this.http.put(apiUrl + `users/${user.Username}/${movieId}`, {}, {
+      headers: new HttpHeaders({
+        "Content-Type": "application/json",
+        Authorization: 'Bearer ' + token,
+      })
+    }).pipe(
+      map(this.extractResponseData),
+      catchError(this.handleError),
+    );
+  }
+
+  // Making the api call for the elete a movie from the favorite movies endpoint
+  deleteFavoriteMovie(movieId: string): Observable<any> {
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const index = user.FavoriteMovies.indexOf(movieId);
+    if (index >= 0) {
+      user.FavoriteMovies.splice(index, 1);
+    }
+    localStorage.setItem('user', JSON.stringify(user));
+
+    return this.http.delete(apiUrl + `users/${user.Username}/${movieId}`, {
       headers: new HttpHeaders({
         Authorization: 'Bearer ' + token,
       })
@@ -183,6 +179,16 @@ export class UserRegistrationService {
       map(this.extractResponseData),
       catchError(this.handleError)
     );
+  }
+
+  
+  isFavoriteMovie(movieId: string): boolean {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user) {
+      return user.FavoriteMovies.includes(movieId);
+    }
+
+    return false;
   }
 
   // Non-typed response extraction
